@@ -1,90 +1,72 @@
 'use client';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, MotionValue, useMotionValue } from 'framer-motion';
+import React from 'react';
 
 export default function Navbar() {
-  const [cursorX, setCursorX] = useState(0);
-  const [cursorY, setCursorY] = useState(0);
-  const [hovered, setHovered] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      setCursorX(event.clientX);
-      setCursorY(event.clientY);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
 
   const links = [
     { href: '/projects', label: 'Projects' },
     { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' }
+    { href: '/contact', label: 'Contact' },
   ];
 
-  const calculateOffset = (linkRect: DOMRect) => {
-    const distanceX = cursorX - (linkRect.left + linkRect.width / 2);
-    const distanceY = cursorY - (linkRect.top + linkRect.height / 2);
-    const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
+  const mapRange = (
+    inputLower: number,
+    inputUpper: number,
+    outputLower: number,
+    outputUpper: number
+  ) => {
+    const INPUT_RANGE = inputUpper - inputLower;
+    const OUTPUT_RANGE = outputUpper - outputLower;
 
-    const multiplier = 0.25;
-    const threshold = 160; 
+    return(value: number) => 
+      outputLower + (((value - inputLower) / INPUT_RANGE) * OUTPUT_RANGE || 0);
+  }
 
-    if (distance < threshold) {
-      return {
-        x: distanceX * multiplier,
-        y: distanceY * multiplier,
-      };
-    }
-    return { x: 0, y: 0 };
-  };
+  const setTransform = (item: HTMLElement & EventTarget, event: React.PointerEvent, x: MotionValue, y: MotionValue) => {
+    const bounds = item.getBoundingClientRect();
+    const relativeX = event.clientX - bounds.left;
+    const relativeY = event.clientY - bounds.top;
+    const xRange = mapRange(0, bounds.width, -1, 1)(relativeX);
+    const yRange = mapRange(0, bounds.height, -1, 1)(relativeY);
+    x.set(xRange * 15);
+    y.set(yRange * 15);
+  }
+
+  const MotionLink = motion(Link);
 
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-10 bg-transparent mt-0 pt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center h-16 relative">
+          <div className="flex justify-center h-10 relative">
             <div className="flex space-x-4">
-              {links.map((link, index) => (
-                <motion.div
-                  key={link.href}
-                  id={`link-${index}`}
-                  className="relative"
-                  onMouseEnter={() => setHovered(link.href)}
-                  onMouseLeave={() => setHovered(null)}
-                  animate={
-                    hovered === link.href
-                      ? (() => {
-                          const linkElement = document.getElementById(`link-${index}`);
-                          if (linkElement) {
-                            const linkRect = linkElement.getBoundingClientRect();
-                            return calculateOffset(linkRect);
-                          }
-                          return { x: 0, y: 0 };
-                        })()
-                      : { x: 0, y: 0 }
-                  }
-                  transition={{ type: 'spring', stiffness: 500, damping: 30, bounce: 0.3 }}
-                >
-                  <Link href={link.href}>
-                    <motion.div
-                      className="font-medium text-m py-2 px-4 transition-all duration-500 ease-out"
-                    >
+              {links.map((link) => {
+                const x = useMotionValue(0);
+                const y = useMotionValue(0);
+                return (
+                  <motion.div key={link.href} className="relative" onPointerMove={(event) => {
+                    const item = event.currentTarget;
+                    setTransform(item, event, x, y);
+                  }}
+                  onPointerLeave={()=>{
+                    x.set(0);
+                    y.set(0);
+                  }}
+                  style={{ x, y }}
+                  >
+                    <MotionLink href={link.href} className="font-medium text-m py-2 px-4 transition-all duration-500 ease-out">
                       {link.label}
-                    </motion.div>
-                  </Link>
-                </motion.div>
-              ))}
+                    </MotionLink>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </div>
       </nav>
-      <div className="mt-16"></div>
+      <br /><br /><br /><br />
     </>
   );
 }
