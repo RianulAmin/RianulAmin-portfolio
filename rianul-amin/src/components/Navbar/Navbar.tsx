@@ -1,10 +1,27 @@
-'use client';
+'use client'
 import Link from 'next/link';
-import { motion, MotionValue, useMotionValue } from 'framer-motion';
-import React, { useState } from 'react';
+import { motion, useMotionValue } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const [activeLink, setActiveLink] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedActiveLink = localStorage.getItem('activeLink');
+    const currentPath = window.location.pathname;
+
+    if (savedActiveLink) {
+      setActiveLink(savedActiveLink);
+    } else {
+      setActiveLink(currentPath);
+      localStorage.setItem('activeLink', currentPath);
+    }
+
+    if (currentPath === '/') {
+      localStorage.removeItem('activeLink');
+      setActiveLink(null);
+    }
+  }, []);
 
   const links = [
     { href: '/projects', label: 'Projects' },
@@ -25,7 +42,12 @@ export default function Navbar() {
       outputLower + (((value - inputLower) / INPUT_RANGE) * OUTPUT_RANGE || 0);
   };
 
-  const setTransform = (item: HTMLElement & EventTarget, event: React.PointerEvent, x: MotionValue, y: MotionValue) => {
+  const setTransform = (
+    item: HTMLElement & EventTarget,
+    event: React.PointerEvent,
+    x: any, 
+    y: any  
+  ) => {
     const bounds = item.getBoundingClientRect();
     const relativeX = event.clientX - bounds.left;
     const relativeY = event.clientY - bounds.top;
@@ -37,12 +59,14 @@ export default function Navbar() {
 
   const handleClick = (href: string) => {
     setActiveLink(href);
+    localStorage.setItem('activeLink', href); 
   };
 
   const MotionLink = motion(Link);
 
   return (
     <>
+    
       <nav className="fixed top-0 left-0 right-0 z-10 bg-transparent mt-0 pt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center h-10 relative">
