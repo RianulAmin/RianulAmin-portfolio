@@ -27,11 +27,16 @@
 }
 
 .layer1 {
-    fill: #C3D5DD;
+    fill: #EBF3FD;
     filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
 }
 
 .layer2 {
-    fill: #E1EBF5;
+    fill: #E3EFFB;
+    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.layer3 {
+    fill: #D9E8FB;
     filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
 }
