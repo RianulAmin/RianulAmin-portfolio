@@ -26,17 +26,18 @@
     background-color: transparent;
 }
 
+.layer1, .layer2, .layer3 {
+    filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, 0.2));
+}
+
 .layer1 {
-    fill: #EBF3FD;
-    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+    fill: #FFFFFF;
 }
 
 .layer2 {
-    fill: #E3EFFB;
-    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+    fill: #DBEEFC;
 }
 
 .layer3 {
-    fill: #D9E8FB;
-    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+    fill: #A5D6F5;
 }
